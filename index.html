@@ -1,0 +1,1293 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Estado de acceso · Helice</title>
+        <link rel="icon" type="image/png" href="favicon.png" />
+        <style>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+            }
+
+            :root {
+                --bg: #f6f7fb;
+                --surface: #ffffff;
+                --surface-muted: #f8fafc;
+                --border: #e5e7eb;
+                --border-strong: #d1d5db;
+                --text: #0f172a;
+                --text-muted: #64748b;
+                --text-soft: #94a3b8;
+                --accent: #4f46e5;
+                --accent-soft: #eef2ff;
+                --dark: #0f172a;
+                --dark-hover: #1e293b;
+                --success: #047857;
+                --success-bg: #ecfdf5;
+                --success-border: #a7f3d0;
+                --warn: #b45309;
+                --warn-bg: #fffbeb;
+                --warn-border: #fde68a;
+                --error: #b91c1c;
+                --error-bg: #fef2f2;
+                --error-border: #fecaca;
+                --mono:
+                    ui-monospace, "SF Mono", SFMono-Regular, Menlo, Monaco,
+                    "JetBrains Mono", Consolas, monospace;
+                --sans:
+                    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+                    Roboto, "Helvetica Neue", Arial, sans-serif;
+            }
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+            }
+
+            body {
+                font-family: var(--sans);
+                background: var(--bg);
+                color: var(--text);
+                line-height: 1.5;
+                font-size: 15px;
+                -webkit-font-smoothing: antialiased;
+                display: flex;
+                flex-direction: column;
+                min-height: 100%;
+            }
+
+            /* Topbar ------------------------------------------------------- */
+            .topbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 16px 32px;
+                border-bottom: 1px solid var(--border);
+                background: var(--surface);
+            }
+
+            .brand {
+                display: inline-flex;
+                align-items: center;
+                gap: 9px;
+                font-weight: 700;
+                font-size: 15px;
+                letter-spacing: -0.01em;
+                color: var(--text);
+            }
+
+            .brand-mark {
+                width: 24px;
+                height: 24px;
+                border-radius: 6px;
+                object-fit: contain;
+                display: inline-block;
+            }
+
+            .topbar-meta {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 12px;
+                color: var(--text-muted);
+            }
+
+            .status-dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: #10b981;
+                box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+            }
+
+            /* Layout ------------------------------------------------------- */
+            main {
+                flex: 1;
+                width: 100%;
+                max-width: 1040px;
+                margin: 0 auto;
+                padding: 48px 28px 40px;
+            }
+
+            .page-head {
+                margin-bottom: 28px;
+            }
+
+            .eyebrow {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--accent);
+                background: var(--accent-soft);
+                padding: 4px 10px;
+                border-radius: 999px;
+                margin-bottom: 14px;
+            }
+
+            .page-title {
+                font-size: 28px;
+                font-weight: 700;
+                letter-spacing: -0.02em;
+                margin: 0 0 8px;
+                color: var(--text);
+            }
+
+            .page-subtitle {
+                font-size: 15px;
+                color: var(--text-muted);
+                margin: 0;
+            }
+
+            .grid {
+                display: grid;
+                grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+                gap: 24px;
+                align-items: start;
+            }
+
+            @media (max-width: 880px) {
+                .grid {
+                    grid-template-columns: 1fr;
+                }
+                main {
+                    padding: 32px 18px;
+                }
+                .page-title {
+                    font-size: 24px;
+                }
+            }
+
+            /* Card --------------------------------------------------------- */
+            .card {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 14px;
+                box-shadow:
+                    0 1px 0 rgba(15, 23, 42, 0.02),
+                    0 8px 24px -16px rgba(15, 23, 42, 0.1);
+                overflow: hidden;
+            }
+
+            .card-section {
+                padding: 24px 28px;
+            }
+
+            .card-section + .card-section {
+                border-top: 1px solid var(--border);
+            }
+
+            .card-section-title {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 0.02em;
+                color: var(--text);
+                margin: 0 0 4px;
+            }
+
+            .card-section-title svg {
+                width: 16px;
+                height: 16px;
+                color: var(--text-muted);
+            }
+
+            .card-section-sub {
+                font-size: 13px;
+                color: var(--text-muted);
+                margin: 0;
+            }
+
+            /* Form --------------------------------------------------------- */
+            .form-card .form-head {
+                display: flex;
+                align-items: flex-start;
+                gap: 14px;
+            }
+
+            .hero-icon {
+                width: 36px;
+                height: 36px;
+                flex: 0 0 36px;
+                border-radius: 10px;
+                background: var(--accent-soft);
+                color: var(--accent);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .hero-icon svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .form-head h2 {
+                font-size: 16px;
+                font-weight: 700;
+                margin: 0 0 2px;
+                color: var(--text);
+                letter-spacing: -0.01em;
+            }
+
+            .form-head p {
+                font-size: 13px;
+                color: var(--text-muted);
+                margin: 0;
+            }
+
+            .field {
+                margin-bottom: 16px;
+            }
+
+            .field:last-of-type {
+                margin-bottom: 0;
+            }
+
+            .field-label {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 12px;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--text);
+                margin-bottom: 6px;
+                letter-spacing: 0.01em;
+            }
+
+            .field-hint {
+                font-size: 11px;
+                font-weight: 500;
+                color: var(--text-soft);
+                display: inline-flex;
+                gap: 6px;
+                align-items: center;
+            }
+
+            .field-hint button {
+                background: none;
+                border: 0;
+                padding: 0;
+                color: var(--accent);
+                cursor: pointer;
+                font: inherit;
+                font-weight: 600;
+            }
+
+            .field-hint button:hover {
+                text-decoration: underline;
+            }
+
+            .input,
+            .select,
+            .textarea {
+                width: 100%;
+                padding: 10px 12px;
+                border: 1px solid var(--border-strong);
+                border-radius: 8px;
+                font: inherit;
+                font-size: 14px;
+                color: var(--text);
+                background: #fff;
+                transition:
+                    border-color 0.12s,
+                    box-shadow 0.12s;
+            }
+
+            .input {
+                font-family: var(--mono);
+                font-size: 13.5px;
+            }
+
+            .input:focus,
+            .select:focus,
+            .textarea:focus {
+                outline: none;
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+            }
+
+            .select {
+                appearance: none;
+                -webkit-appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 12px center;
+                padding-right: 32px;
+            }
+
+            .textarea {
+                resize: vertical;
+                min-height: 84px;
+                font-family: var(--sans);
+            }
+
+            .form-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            /* Honeypot ----------------------------------------------------- */
+            .hp-field {
+                position: absolute;
+                left: -9999px;
+                top: -9999px;
+            }
+
+            /* Buttons ------------------------------------------------------ */
+            .btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                padding: 11px 16px;
+                border-radius: 8px;
+                font: inherit;
+                font-size: 14px;
+                font-weight: 600;
+                border: 1px solid transparent;
+                cursor: pointer;
+                transition:
+                    background 0.12s,
+                    border-color 0.12s,
+                    color 0.12s,
+                    transform 0.05s;
+            }
+
+            .btn:active {
+                transform: translateY(1px);
+            }
+
+            .btn-primary {
+                background: var(--dark);
+                color: #fff;
+                width: 100%;
+            }
+
+            .btn-primary:hover {
+                background: var(--dark-hover);
+            }
+
+            .btn-primary:disabled {
+                background: #94a3b8;
+                cursor: not-allowed;
+            }
+
+            .form-actions {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                justify-content: space-between;
+                margin-top: 18px;
+            }
+
+            .form-actions-meta {
+                font-size: 12px;
+                color: var(--text-soft);
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .form-actions-meta svg {
+                width: 13px;
+                height: 13px;
+            }
+
+            .spinner {
+                width: 14px;
+                height: 14px;
+                border: 2px solid rgba(255, 255, 255, 0.35);
+                border-top-color: #fff;
+                border-radius: 50%;
+                animation: spin 0.7s linear infinite;
+                display: none;
+            }
+
+            .btn-primary.loading .spinner {
+                display: inline-block;
+            }
+
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            /* Alert -------------------------------------------------------- */
+            .alert {
+                display: none;
+                align-items: flex-start;
+                gap: 10px;
+                border-radius: 8px;
+                padding: 12px 14px;
+                font-size: 13.5px;
+                line-height: 1.5;
+                border: 1px solid transparent;
+                margin-bottom: 16px;
+            }
+
+            .alert.show {
+                display: flex;
+            }
+
+            .alert-icon {
+                flex: 0 0 16px;
+                margin-top: 2px;
+            }
+
+            .alert-icon svg {
+                display: block;
+                width: 16px;
+                height: 16px;
+            }
+
+            .alert-success {
+                background: var(--success-bg);
+                color: var(--success);
+                border-color: var(--success-border);
+            }
+            .alert-warn {
+                background: var(--warn-bg);
+                color: var(--warn);
+                border-color: var(--warn-border);
+            }
+            .alert-error {
+                background: var(--error-bg);
+                color: var(--error);
+                border-color: var(--error-border);
+            }
+
+            .alert code {
+                font-family: var(--mono);
+                background: rgba(0, 0, 0, 0.06);
+                padding: 1px 5px;
+                border-radius: 4px;
+                font-size: 12.5px;
+            }
+
+            .alert strong {
+                font-weight: 700;
+            }
+
+            .alert-meta {
+                margin: 6px 0 0;
+                display: grid;
+                grid-template-columns: auto 1fr;
+                gap: 2px 10px;
+                font-size: 12.5px;
+            }
+            .alert-meta dt {
+                opacity: 0.75;
+                font-weight: 500;
+            }
+            .alert-meta dd {
+                margin: 0;
+                font-weight: 600;
+            }
+
+            /* Steps -------------------------------------------------------- */
+            .steps {
+                list-style: none;
+                margin: 12px 0 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+                position: relative;
+            }
+
+            .steps::before {
+                content: "";
+                position: absolute;
+                left: 12px;
+                top: 24px;
+                bottom: 24px;
+                width: 1px;
+                background: var(--border);
+            }
+
+            .step {
+                display: grid;
+                grid-template-columns: 26px 1fr;
+                gap: 12px;
+                align-items: flex-start;
+                position: relative;
+            }
+
+            .step-num {
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                background: var(--surface);
+                border: 1px solid var(--border-strong);
+                color: var(--text);
+                font-size: 12px;
+                font-weight: 700;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                z-index: 1;
+            }
+
+            .step-title {
+                font-size: 13px;
+                font-weight: 700;
+                color: var(--text);
+                margin: 4px 0 2px;
+            }
+
+            .step-desc {
+                font-size: 13px;
+                color: var(--text-muted);
+                margin: 0;
+            }
+
+            /* Reasons list ------------------------------------------------- */
+            .reasons {
+                list-style: none;
+                margin: 12px 0 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .reasons li {
+                display: grid;
+                grid-template-columns: 18px 1fr;
+                gap: 10px;
+                font-size: 13px;
+                color: var(--text-muted);
+                align-items: flex-start;
+            }
+
+            .reasons li svg {
+                width: 14px;
+                height: 14px;
+                color: var(--text-soft);
+                margin-top: 3px;
+            }
+
+            .reasons strong {
+                color: var(--text);
+                font-weight: 600;
+            }
+
+            /* Support -------------------------------------------------- */
+            .support {
+                background: var(--surface-muted);
+                border: 1px dashed var(--border-strong);
+                border-radius: 10px;
+                padding: 14px 16px;
+                font-size: 13px;
+                color: var(--text-muted);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .support svg {
+                width: 18px;
+                height: 18px;
+                color: var(--text-muted);
+                flex: 0 0 18px;
+            }
+
+            .support a {
+                color: var(--text);
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+            .support a:hover {
+                text-decoration: underline;
+            }
+
+            /* Footer ------------------------------------------------------- */
+            .footer {
+                text-align: center;
+                font-size: 12px;
+                color: var(--text-soft);
+                padding: 24px 20px 28px;
+            }
+
+            .footer a {
+                color: var(--text-muted);
+                text-decoration: none;
+            }
+
+            .footer a:hover {
+                text-decoration: underline;
+            }
+
+            .sep {
+                color: var(--border-strong);
+                margin: 0 6px;
+            }
+        </style>
+    </head>
+    <body>
+        <header class="topbar">
+            <span class="brand">
+                <img
+                    class="brand-mark"
+                    src="favicon.png"
+                    alt=""
+                    onerror="this.style.display = 'none'"
+                />
+                seguridad.helice.app
+            </span>
+            <span class="topbar-meta" title="Protección activa">
+                <span class="status-dot"></span>
+                Estado del servicio
+            </span>
+        </header>
+
+        <main>
+            <div class="page-head">
+                <span class="eyebrow">CONTROL DE IP BLOQUEADA</span>
+                <h1 class="page-title">Estado de acceso a tu servidor</h1>
+                <p class="page-subtitle">
+                    Si no consigues conectarte, lo más probable es que tu IP
+                    haya sido bloqueada automáticamente por incumplir alguna
+                    política de seguridad. Comprueba aquí tu estado y solicita
+                    el desbloqueo en menos de un minuto.
+                </p>
+            </div>
+
+            <div class="grid">
+                <!-- Columna izquierda: form -->
+                <section class="card form-card" aria-labelledby="form-title">
+                    <div class="card-section">
+                        <div class="form-head">
+                            <div class="hero-icon" aria-hidden="true">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path
+                                        d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                                    />
+                                    <path d="m9 12 2 2 4-4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 id="form-title">
+                                    Comprobar estado de tu IP
+                                </h2>
+                                <p>
+                                    Indica la dirección IPv4 con la que sales a
+                                    internet.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-section">
+                        <div
+                            class="alert"
+                            id="alert-result"
+                            role="status"
+                            aria-live="polite"
+                        ></div>
+
+                        <form id="unblock-form" novalidate>
+                            <input
+                                type="text"
+                                id="helice_hp"
+                                name="helice_hp"
+                                value=""
+                                class="hp-field"
+                                tabindex="-1"
+                                autocomplete="off"
+                                aria-hidden="true"
+                            />
+                            <div class="form-grid">
+                                <div class="field">
+                                    <div class="field-label">
+                                        <label for="ip">Dirección IPv4</label>
+                                        <span class="field-hint">
+                                            <span id="ip-hint-text"
+                                                >detectando…</span
+                                            >
+                                            <button
+                                                type="button"
+                                                id="btn-detect"
+                                            >
+                                                Usar la mía
+                                            </button>
+                                        </span>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        id="ip"
+                                        name="ip"
+                                        class="input"
+                                        placeholder="0.0.0.0"
+                                        autocomplete="off"
+                                        spellcheck="false"
+                                        inputmode="numeric"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div
+                                class="field"
+                                id="reason-group"
+                                style="display: none"
+                            >
+                                <div class="field-label">
+                                    <label for="reason">Motivo</label>
+                                    <span class="field-hint"
+                                        >Visible para el administrador</span
+                                    >
+                                </div>
+                                <textarea
+                                    id="reason"
+                                    name="reason"
+                                    class="textarea"
+                                    placeholder="Ej. He fallado la contraseña varias veces al volver de vacaciones…"
+                                ></textarea>
+                            </div>
+
+                            <div class="form-actions">
+                                <span class="form-actions-meta">
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <rect
+                                            x="3"
+                                            y="11"
+                                            width="18"
+                                            height="11"
+                                            rx="2"
+                                        />
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                    </svg>
+                                    Conexión segura
+                                </span>
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary"
+                                    id="btn-submit"
+                                    style="width: auto; min-width: 200px"
+                                >
+                                    <span
+                                        class="spinner"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span id="btn-label">Comprobar estado</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Columna derecha: información de apoyo -->
+                <aside>
+                    <div class="card">
+                        <div class="card-section">
+                            <h3 class="card-section-title">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="M12 16v-4" />
+                                    <path d="M12 8h.01" />
+                                </svg>
+                                Cómo funciona
+                            </h3>
+                            <p class="card-section-sub">
+                                Tres pasos rápidos para recuperar el acceso.
+                            </p>
+                            <ol class="steps">
+                                <li class="step">
+                                    <span class="step-num">1</span>
+                                    <div>
+                                        <p class="step-title">
+                                            Comprobamos tu IP
+                                        </p>
+                                        <p class="step-desc">
+                                            Comprobamos automáticamente tu
+                                            dirección IP en todos nuestros
+                                            servidores.
+                                        </p>
+                                    </div>
+                                </li>
+                                <li class="step">
+                                    <span class="step-num">2</span>
+                                    <div>
+                                        <p class="step-title">
+                                            Solicitas el desbloqueo
+                                        </p>
+                                        <p class="step-desc">
+                                            Si está bloqueada, indica brevemente
+                                            qué ocurrió para que el
+                                            administrador pueda revisarlo.
+                                        </p>
+                                    </div>
+                                </li>
+                                <li class="step">
+                                    <span class="step-num">3</span>
+                                    <div>
+                                        <p class="step-title">
+                                            Te devolvemos el acceso
+                                        </p>
+                                        <p class="step-desc">
+                                            Si tu IP está vinculada a una cuenta
+                                            de cliente, el desbloqueo se aplica
+                                            al instante.
+                                        </p>
+                                    </div>
+                                </li>
+                            </ol>
+                        </div>
+
+                        <div class="card-section">
+                            <h3 class="card-section-title">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path
+                                        d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                                    />
+                                    <path d="M12 9v4" />
+                                    <path d="M12 17h.01" />
+                                </svg>
+                                Causas habituales del bloqueo
+                            </h3>
+                            <ul class="reasons">
+                                <li>
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <path
+                                            d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"
+                                        />
+                                        <path d="M12 7v5l3 2" />
+                                    </svg>
+                                    <span
+                                        ><strong>Demasiadas peticiones</strong>
+                                        en poco tiempo desde la misma IP.</span
+                                    >
+                                </li>
+                                <li>
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <path
+                                            d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"
+                                        />
+                                        <path d="m9 12 2 2 4-4" />
+                                    </svg>
+                                    <span
+                                        ><strong>Tráfico sospechoso</strong>
+                                        detectado por las reglas
+                                        automáticas.</span
+                                    >
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="card-section">
+                            <div class="support">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path
+                                        d="M22 16.92V21a1 1 0 0 1-1.11 1A19 19 0 0 1 2 4.11 1 1 0 0 1 3 3h4.09a1 1 0 0 1 1 .75 11.5 11.5 0 0 0 .57 2.57 1 1 0 0 1-.23 1L7.21 8.79a16 16 0 0 0 8 8l1.47-1.22a1 1 0 0 1 1-.23 11.5 11.5 0 0 0 2.57.57 1 1 0 0 1 .75 1z"
+                                    />
+                                </svg>
+                                <div>
+                                    ¿No te funciona?
+                                    <a href="mailto:info@helice.app"
+                                        >info@helice.app</a
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
+
+        <footer class="footer">
+            © Helice.app <span class="sep">·</span>
+            <a href="mailto:info@helice.app">info@helice.app</a>
+        </footer>
+
+        <script>
+            // === Configuración =================================================
+            // Cada servidor expone /api/unblock/* sobre SU fail2ban. El servidor
+            // que ha baneado la IP del visitante NO es alcanzable desde su
+            // navegador, así que si el destino no responde se reintenta a través
+            // de los otros servidores, que reenvían la petición por detrás (relay).
+            const SERVERS = {
+                // helice: "https://panel.helice.app",
+                valte: "https://valte.helice.app",
+                sego: "https://sego.helice.app",
+            };
+            const API_TIMEOUT = 9000;
+
+            // === Helpers =======================================================
+            const $ = (sel) => document.querySelector(sel);
+            const ipField = $("#ip");
+            const ipHintText = $("#ip-hint-text");
+            const alertResult = $("#alert-result");
+            const reasonGroup = $("#reason-group");
+            const reasonField = $("#reason");
+            const btnSubmit = $("#btn-submit");
+            const btnLabel = $("#btn-label");
+            const form = $("#unblock-form");
+
+            const IPV4_RE =
+                /^((25[0-5]|2[0-4]\d|[01]?\d?\d)\.){3}(25[0-5]|2[0-4]\d|[01]?\d?\d)$/;
+            const isValidIp = (v) => IPV4_RE.test((v || "").trim());
+
+            const ICONS = {
+                success:
+                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+                warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>',
+                error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>',
+            };
+
+            function showAlert(kind, html) {
+                alertResult.className = "alert alert-" + kind + " show";
+                alertResult.innerHTML =
+                    '<span class="alert-icon">' +
+                    ICONS[kind] +
+                    "</span><div>" +
+                    html +
+                    "</div>";
+            }
+
+            function hideAlert() {
+                alertResult.className = "alert";
+                alertResult.innerHTML = "";
+            }
+
+            function setLoading(loading, label) {
+                btnSubmit.disabled = loading;
+                btnSubmit.classList.toggle("loading", loading);
+                if (label) btnLabel.textContent = label;
+            }
+
+            const escapeHtml = (s) =>
+                String(s).replace(
+                    /[&<>"']/g,
+                    (c) =>
+                        ({
+                            "&": "&amp;",
+                            "<": "&lt;",
+                            ">": "&gt;",
+                            '"': "&quot;",
+                            "'": "&#39;",
+                        })[c],
+                );
+
+            // === Llamadas API con failover entre servidores ===================
+            const SERVER_KEYS = Object.keys(SERVERS);
+
+            async function fetchTimeout(url, payload, ms) {
+                const ctrl = new AbortController();
+                const t = setTimeout(() => ctrl.abort(), ms);
+                try {
+                    // URLSearchParams => form-encoded => sin preflight CORS
+                    return await fetch(url, {
+                        method: "POST",
+                        body: new URLSearchParams(payload),
+                        signal: ctrl.signal,
+                    });
+                } finally {
+                    clearTimeout(t);
+                }
+            }
+
+            async function tryFetch(base, action, payload) {
+                try {
+                    const r = await fetchTimeout(
+                        base + "/api/unblock/" + action,
+                        payload,
+                        API_TIMEOUT,
+                    );
+                    // 502 = el relay no pudo contactar al destino
+                    if (r.status === 502) return null;
+                    const data = await r.json().catch(() => ({}));
+                    return { ok: r.ok, status: r.status, data };
+                } catch (e) {
+                    // inalcanzable (posible baneo) o timeout
+                    return null;
+                }
+            }
+
+            // Pregunta por payload.server: primero a él mismo y, si no
+            // responde (posiblemente porque banea al visitante), a los otros
+            // servidores, que reenvían la petición por detrás (relay)
+            async function apiCall(action, payload) {
+                const order = [
+                    payload.server,
+                    ...SERVER_KEYS.filter((s) => s !== payload.server),
+                ];
+                for (const srv of order) {
+                    const res = await tryFetch(SERVERS[srv], action, payload);
+                    if (res) return res;
+                }
+                return null;
+            }
+
+            // Estado de la IP en los tres servidores a la vez
+            async function checkAll(ip, hp) {
+                const results = await Promise.all(
+                    SERVER_KEYS.map((s) =>
+                        apiCall("check", { ip, server: s, helice_hp: hp }),
+                    ),
+                );
+                const byServer = {};
+                SERVER_KEYS.forEach((s, i) => (byServer[s] = results[i]));
+                return byServer;
+            }
+
+            // === Detección IP pública =========================================
+            let detectedIp = null;
+
+            async function detectIp() {
+                ipHintText.textContent = "detectando…";
+                try {
+                    const r = await fetch("https://api4.ipify.org?format=json");
+                    const data = await r.json();
+                    if (data && data.ip && isValidIp(data.ip)) {
+                        detectedIp = data.ip;
+                        ipHintText.textContent = "tu IP: " + data.ip;
+                        if (!ipField.value) ipField.value = data.ip;
+                        return data.ip;
+                    }
+                } catch (e) {
+                    /* ignore */
+                }
+                detectedIp = null;
+                ipHintText.textContent = "no detectada";
+                return null;
+            }
+
+            $("#btn-detect").addEventListener("click", () => {
+                if (detectedIp) ipField.value = detectedIp;
+                else detectIp();
+            });
+
+            // === Estado del flujo =============================================
+            let mode = "check";
+            // Servidores donde el último check vio la IP bloqueada y con
+            // vínculo a cuenta (candidatos al desbloqueo)
+            let pendingServers = [];
+
+            function switchToRequestMode() {
+                mode = "request";
+                reasonGroup.style.display = "";
+                btnLabel.textContent = "Enviar solicitud";
+                reasonField.focus();
+            }
+
+            function resetToCheckMode() {
+                mode = "check";
+                pendingServers = [];
+                reasonGroup.style.display = "none";
+                reasonField.value = "";
+                btnLabel.textContent = "Comprobar estado";
+            }
+
+            ipField.addEventListener("input", () => {
+                if (mode === "request") resetToCheckMode();
+                hideAlert();
+            });
+
+            // === Submit =======================================================
+            form.addEventListener("submit", async (ev) => {
+                ev.preventDefault();
+                hideAlert();
+
+                const ip = ipField.value.trim();
+                if (!isValidIp(ip)) {
+                    showAlert(
+                        "error",
+                        "Introduce una IPv4 válida (ej. <code>81.45.123.45</code>).",
+                    );
+                    ipField.focus();
+                    return;
+                }
+                const hp = $("#helice_hp").value;
+
+                if (mode === "check") {
+                    setLoading(true, "Comprobando…");
+                    pendingServers = [];
+                    try {
+                        const byServer = await checkAll(ip, hp);
+                        const answered = SERVER_KEYS.filter(
+                            (s) => byServer[s] && byServer[s].ok,
+                        );
+                        if (!answered.length) {
+                            showAlert(
+                                "error",
+                                "No hemos podido consultar el estado. Inténtalo de nuevo en unos minutos o escríbenos a <a href='mailto:info@helice.app'>info@helice.app</a>.",
+                            );
+                            return;
+                        }
+
+                        const blocked = answered.filter(
+                            (s) => byServer[s].data.blocked,
+                        );
+                        if (blocked.length) {
+                            pendingServers = blocked.filter(
+                                (s) => byServer[s].data.can_request,
+                            );
+                            const reasons = [
+                                ...new Set(
+                                    blocked
+                                        .map((s) => byServer[s].data.reason)
+                                        .filter(Boolean),
+                                ),
+                            ];
+                            const since = blocked
+                                .map((s) => byServer[s].data.since)
+                                .filter(Boolean)[0];
+                            const meta = [];
+                            if (reasons.length)
+                                meta.push(
+                                    `<dt>Causa</dt><dd>${escapeHtml(reasons.join(", "))}</dd>`,
+                                );
+                            if (since)
+                                meta.push(
+                                    `<dt>Desde</dt><dd>${escapeHtml(since)}</dd>`,
+                                );
+                            const metaHtml = meta.length
+                                ? `<dl class="alert-meta">${meta.join("")}</dl>`
+                                : "";
+                            if (pendingServers.length) {
+                                showAlert(
+                                    "warn",
+                                    `<strong>IP bloqueada</strong> · <code>${escapeHtml(ip)}</code>${metaHtml}<div style="margin-top:8px;opacity:.85">Indica un motivo abajo y envía la solicitud.</div>`,
+                                );
+                                switchToRequestMode();
+                            } else {
+                                showAlert(
+                                    "warn",
+                                    `<strong>IP bloqueada</strong> · <code>${escapeHtml(ip)}</code>${metaHtml}<div style="margin-top:8px;opacity:.85">No hemos podido vincular esta IP con ninguna cuenta de cliente, así que no podemos desbloquearla automáticamente. Escríbenos a <a href="mailto:info@helice.app">info@helice.app</a> indicando tu IP.</div>`,
+                                );
+                            }
+                        } else {
+                            showAlert(
+                                "success",
+                                `<strong>IP no bloqueada</strong> · <code>${escapeHtml(ip)}</code><div style="margin-top:4px;opacity:.85">Si sigues sin acceder, revisa tus credenciales o contacta con soporte.</div>`,
+                            );
+                        }
+                    } finally {
+                        setLoading(false);
+                        if (mode !== "request")
+                            btnLabel.textContent = "Comprobar estado";
+                    }
+                    return;
+                }
+
+                // mode === "request"
+                const reason = reasonField.value.trim();
+                if (reason.length < 5) {
+                    showAlert(
+                        "error",
+                        "Describe brevemente el motivo del desbloqueo.",
+                    );
+                    reasonField.focus();
+                    return;
+                }
+
+                setLoading(true, "Enviando…");
+                try {
+                    const outcomes = await Promise.all(
+                        pendingServers.map((s) =>
+                            apiCall("request", {
+                                ip,
+                                server: s,
+                                reason,
+                                helice_hp: hp,
+                            }),
+                        ),
+                    );
+                    const allOk =
+                        outcomes.length && outcomes.every((r) => r && r.ok);
+
+                    if (allOk) {
+                        form.reset();
+                        resetToCheckMode();
+                        showAlert(
+                            "success",
+                            "<strong>IP desbloqueada.</strong> Prueba a conectarte de nuevo; si sigues sin acceso, escríbenos a <a href='mailto:info@helice.app'>info@helice.app</a>.",
+                        );
+                    } else {
+                        const msg = outcomes
+                            .map((r) => r && r.data && r.data.message)
+                            .filter(Boolean)[0];
+                        showAlert(
+                            "error",
+                            msg
+                                ? escapeHtml(msg)
+                                : "No se ha podido enviar la solicitud. Inténtalo de nuevo más tarde.",
+                        );
+                    }
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            // === Init =========================================================
+            detectIp();
+        </script>
+    </body>
+</html>
+
