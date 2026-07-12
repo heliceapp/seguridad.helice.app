@@ -45,6 +45,40 @@
                 --sans:
                     "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
                     Roboto, "Helvetica Neue", Arial, sans-serif;
+                --input-bg: #ffffff;
+                --code-bg: rgba(0, 0, 0, 0.06);
+                color-scheme: light;
+            }
+
+            /* Modo oscuro automático (prefers-color-scheme) con la paleta
+               de night.css del panel */
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    color-scheme: dark;
+                    --bg: #4c5057;
+                    --surface: #3f444c;
+                    --surface-muted: #383c44;
+                    --border: rgba(255, 255, 255, 0.12);
+                    --border-strong: rgba(255, 255, 255, 0.25);
+                    --text: #e6e8ea;
+                    --text-muted: #aab0b8;
+                    --text-soft: #8b929c;
+                    --accent: #3474f0;
+                    --accent-soft: rgba(52, 116, 240, 0.18);
+                    --dark: #3474f0;
+                    --dark-hover: #2a63d4;
+                    --success: #6ee7b7;
+                    --success-bg: rgba(16, 185, 129, 0.12);
+                    --success-border: rgba(16, 185, 129, 0.4);
+                    --warn: #fcd34d;
+                    --warn-bg: rgba(245, 158, 11, 0.12);
+                    --warn-border: rgba(245, 158, 11, 0.4);
+                    --error: #fca5a5;
+                    --error-bg: rgba(239, 68, 68, 0.14);
+                    --error-border: rgba(239, 68, 68, 0.4);
+                    --input-bg: rgba(0, 0, 0, 0.2);
+                    --code-bg: rgba(255, 255, 255, 0.12);
+                }
             }
 
             html,
@@ -168,6 +202,9 @@
                 }
                 .page-title {
                     font-size: 24px;
+                }
+                .topbar-meta {
+                    display: none;
                 }
             }
 
@@ -304,7 +341,7 @@
                 font: inherit;
                 font-size: 14px;
                 color: var(--text);
-                background: #fff;
+                background: var(--input-bg);
                 transition:
                     border-color 0.12s,
                     box-shadow 0.12s;
@@ -477,7 +514,7 @@
 
             .alert code {
                 font-family: var(--mono);
-                background: rgba(0, 0, 0, 0.06);
+                background: var(--code-bg);
                 padding: 1px 5px;
                 border-radius: 4px;
                 font-size: 12.5px;
@@ -1259,15 +1296,17 @@
                             }),
                         ),
                     );
-                    const allOk =
-                        outcomes.length && outcomes.every((r) => r && r.ok);
+                    // Las solicitudes van en paralelo a cada servidor con
+                    // bloqueo: si al menos una desbloquea, para el usuario es
+                    // un éxito (verde siempre); rojo solo si fallan todas
+                    const anyOk = outcomes.some((r) => r && r.ok);
 
-                    if (allOk) {
+                    if (anyOk) {
                         form.reset();
                         resetToCheckMode();
                         showAlert(
                             "success",
-                            "<strong>IP desbloqueada.</strong> Prueba a conectarte de nuevo; si sigues sin acceso, escríbenos a <a href='mailto:info@helice.app'>info@helice.app</a>.",
+                            "<strong>IP desbloqueada.</strong> Prueba a conectarte de nuevo y, si sigues sin acceso, vuelve a comprobar el estado o escríbenos a <a href='mailto:info@helice.app'>info@helice.app</a>.",
                         );
                     } else {
                         const msg = outcomes
@@ -1282,6 +1321,8 @@
                     }
                 } finally {
                     setLoading(false);
+                    if (mode === "request")
+                        btnLabel.textContent = "Enviar solicitud";
                 }
             });
 
