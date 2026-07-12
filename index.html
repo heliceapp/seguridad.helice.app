@@ -3,8 +3,13 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Estado de acceso · Helice</title>
-        <link rel="icon" type="image/png" href="favicon.png" />
+        <title>seguridad.helice.app</title>
+        <meta name="robots" content="noindex, nofollow" />
+        <link
+            rel="icon"
+            type="image/png"
+            href="https://www.helice.app/favicon.png"
+        />
         <style>
             *,
             *::before,
@@ -645,9 +650,7 @@
             <span class="brand">
                 <img
                     class="brand-mark"
-                    src="favicon.png"
-                    alt=""
-                    onerror="this.style.display = 'none'"
+                    src="https://www.helice.app/favicon.png"
                 />
                 seguridad.helice.app
             </span>
@@ -732,7 +735,7 @@
                                                 type="button"
                                                 id="btn-detect"
                                             >
-                                                Usar la mía
+                                                Usar mi IP actual
                                             </button>
                                         </span>
                                     </div>
@@ -948,7 +951,7 @@
                                     />
                                 </svg>
                                 <div>
-                                    ¿No te funciona?
+                                    ¿Alguna duda? Contacta en
                                     <a href="mailto:info@helice.app"
                                         >info@helice.app</a
                                     >
@@ -960,10 +963,7 @@
             </div>
         </main>
 
-        <footer class="footer">
-            © Helice.app <span class="sep">·</span>
-            <a href="mailto:info@helice.app">info@helice.app</a>
-        </footer>
+        <footer class="footer">© Helice.app</footer>
 
         <script>
             // === Configuración =================================================
@@ -972,7 +972,7 @@
             // navegador, así que si el destino no responde se reintenta a través
             // de los otros servidores, que reenvían la petición por detrás (relay).
             const SERVERS = {
-                // helice: "https://panel.helice.app",
+                helice: "https://panel.helice.app",
                 valte: "https://valte.helice.app",
                 sego: "https://sego.helice.app",
             };
@@ -1290,4 +1290,3 @@
         </script>
     </body>
 </html>
-
